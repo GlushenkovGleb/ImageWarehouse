@@ -68,10 +68,7 @@ class ImagesHandler:
             raw_content, size = self.get_file_content(file)
             self.minio_client.put_object(bucket_name, image.name, raw_content, size)
 
-        try:
-            self.session.commit()
-        finally:
-            print('This needs handling!')
+        self.session.commit()
         return list(map(models.ImageInbox.from_orm, inbox_list))
 
     def get_images(self, frame_id: int) -> List[models.ImageGet]:

@@ -22,5 +22,5 @@ class User(Base):  # type: ignore
     login = sa.Column(sa.String, unique=True, nullable=False)
     password_hash = sa.Column(sa.String)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f'User(id={self.id}, login={self.login}, password_hash={self.password_hash})'

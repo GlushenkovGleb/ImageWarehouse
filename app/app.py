@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 
-from .api import image, auth
+from .api import auth, image
 
 app = FastAPI()
 

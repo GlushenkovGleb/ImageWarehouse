@@ -74,12 +74,14 @@ class AuthService:
             login=user_data.login,
             password_hash=self.get_hashed_password(user_data.password),
         )
-        print(user)
         try:
             self.session.add(user)
             self.session.commit()
         except IntegrityError:
-            raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail='User with this login already exists') from None
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail='User with this login already exists',
+            ) from None
 
         return self.create_token(user)
 

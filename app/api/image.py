@@ -3,8 +3,8 @@ from typing import List
 from fastapi import APIRouter, Depends, File, Response, status
 
 from app.models import ImageGet, ImageInbox
-from app.service.images import ImagesHandler
 from app.service.auth import AuthService
+from app.service.images import ImagesHandler
 
 router = APIRouter(prefix='/frames', dependencies=[Depends(AuthService.check_token)])
 
