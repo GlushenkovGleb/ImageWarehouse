@@ -1,0 +1,95 @@
+import base64
+import uuid
+from datetime import datetime
+from io import BytesIO
+from typing import Any, List, Tuple
+
+from fastapi import Depends
+from minio import Minio
+from sqlalchemy.orm import Session
+
+from app import models
+from app.database import get_minio, get_session
+from app.tables import Inbox
+
+
+class ImagesHandler:
+    @staticmethod
+    def gen_image_name() -> str:
+        return f'{uuid.uuid4()}.jpg'
+
+    @staticmethod
+    def get_bucket_name(date: datetime) -> str:
+        return date.strftime('%Y%m%d')
+
+    @staticmethod
+    def get_file_content(data: bytes) -> Tuple[Any, int]:
+        print(data)
+        raw_data = BytesIO(data)
+        size = raw_data.getbuffer().nbytes
+        return raw_data, size
+
+    @staticmethod
+    def encode_image(file: Any) -> bytes:
+        return base64.b64encode(file.read())
+
+    def __init__(
+        self,
+        session: Session = Depends(get_session),
+        minio_client: Minio = Depends(get_minio),
+    ):
+        self.session = session
+        self.minio_client = minio_client
+
+    def load_images(self, files: List[bytes]) -> List[models.ImageInbox]:
+        # get last request id
+        lst_frame_id = (
+            self.session.query(Inbox.frame_id).order_by(Inbox.id.desc()).first()
+        )
+        if lst_frame_id is None:
+            lst_frame_id = 0
+        else:
+            (lst_frame_id,) = lst_frame_id
+        frame_id = lst_frame_id + 1
+
+        inbox_list = [
+            Inbox(name=self.gen_image_name(), frame_id=frame_id)
+            for _ in range(len(files))
+        ]
+        self.session.add_all(inbox_list)
+        self.session.flush()
+
+        # put images in bucket
+        for image, file in zip(inbox_list, files):
+            bucket_name = self.get_bucket_name(image.created_at)
+            if not self.minio_client.bucket_exists(bucket_name):
+                self.minio_client.make_bucket(bucket_name)
+
+            raw_content, size = self.get_file_content(file)
+            self.minio_client.put_object(bucket_name, image.name, raw_content, size)
+
+        try:
+            self.session.commit()
+        finally:
+            print('This needs handling!')
+        return list(map(models.ImageInbox.from_orm, inbox_list))
+
+    def get_images(self, frame_id: int) -> List[models.ImageGet]:
+        inbox_list = self.session.query(Inbox).filter(Inbox.frame_id == frame_id).all()
+        images = []
+        for image in inbox_list:
+            bucket_name = self.get_bucket_name(image.created_at)
+            file = self.minio_client.get_object(bucket_name, image.name)
+            content = self.encode_image(file)
+            inbox_model = models.ImageInbox.from_orm(image)
+            images.append(models.ImageGet(**inbox_model.dict(), content=content))
+        return images
+
+    def delete_images(self, frame_id: int) -> None:
+        inbox_list = self.session.query(Inbox).filter(Inbox.frame_id == frame_id).all()
+        for image in inbox_list:
+            bucket_name = self.get_bucket_name(image.created_at)
+            self.minio_client.remove_object(bucket_name, image.name)
+        for image in inbox_list:
+            self.session.delete(image)
+        self.session.commit()

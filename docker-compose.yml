@@ -1,0 +1,25 @@
+version: '3'
+
+services:
+  minio:
+    restart: always
+    image: minio/minio
+    ports:
+      - "9000:9000"
+    environment:
+      MINIO_ROOT_USER: access_key
+      MINIO_ROOT_PASSWORD: secret_key
+    command: server --console-address ":9001" /export
+    volumes:
+      - /mnt/hdd/minio/data:/export
+      - /mnt/hdd/minio/config:/root/.minio
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        ENVIRONMENT: ${ENVIRONMENT:-development}
+    ports:
+      - "8090:8090"
+    volumes:
+      - '.:/opt/app'
