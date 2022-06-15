@@ -15,6 +15,7 @@ from app.tables import User
 
 
 class AuthService:
+    """Class that handles authorization using jwt tokens and OAth2"""
     pwd_contex = CryptContext(schemes=['bcrypt'], deprecated='auto')
     oath2_scheme = OAuth2PasswordBearer(tokenUrl='/auth/sign-in/')
 
@@ -71,12 +72,14 @@ class AuthService:
 
     @classmethod
     def check_token(cls, token: str = Depends(oath2_scheme)) -> None:
+        """Checks if user's token is valid"""
         return cls.validate_token(token)
 
     def __init__(self, session: Session = Depends(get_session)):
         self.session = session
 
     def register_new_user(self, user_data: models.UserCreate) -> models.Token:
+        """Registers new user and returns a token for this user"""
         user = User(
             login=user_data.login,
             password_hash=self.get_hashed_password(user_data.password),
@@ -93,6 +96,7 @@ class AuthService:
         return self.create_token(user)
 
     def authenticate_user(self, login: str, password: str) -> models.Token:
+        """Checks if user's credentials are correct and return a token for this user"""
         credentials_exception = HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail='Incorrect username or password',

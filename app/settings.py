@@ -6,7 +6,7 @@ class Settings(BaseSettings):
     server_port: int = 8090
     database_url: str = 'sqlite:///./isinstance/database.sqlite3'
     data_path: str = './isinstance/database.sqlite3'
-    minio_url: str = 'localhost:9000'
+    minio_url: str = 'minio:9000'
     minio_access_key: str = 'access_key'
     minio_secret_key: str = 'secret_key'
     minio_secure: bool = False

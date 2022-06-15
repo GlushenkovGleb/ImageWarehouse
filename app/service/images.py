@@ -15,6 +15,7 @@ from app.tables import Inbox
 
 
 class ImagesHandler:
+    """Class that handles images using minio and sql"""
     @staticmethod
     def gen_image_name() -> str:
         return f'{uuid.uuid4()}.jpg'
@@ -42,6 +43,7 @@ class ImagesHandler:
         self.minio_client = minio_client
 
     def load_images(self, files: List[bytes]) -> List[models.ImageInbox]:
+        """Load images in db and buckets using minio"""
         # get last request id
         lst_frame_id = (
             self.session.query(Inbox.frame_id).order_by(Inbox.id.desc()).first()
@@ -72,6 +74,7 @@ class ImagesHandler:
         return list(map(models.ImageInbox.from_orm, inbox_list))
 
     def get_images(self, frame_id: int) -> List[models.ImageGet]:
+        """Gets images from minio and db, and returns content of image encoded in base64"""
         inbox_list = self.session.query(Inbox).filter(Inbox.frame_id == frame_id).all()
         images = []
         for image in inbox_list:
@@ -83,6 +86,7 @@ class ImagesHandler:
         return images
 
     def delete_images(self, frame_id: int) -> None:
+        """Deletes images from minio and db"""
         inbox_list = self.session.query(Inbox).filter(Inbox.frame_id == frame_id).all()
         for image in inbox_list:
             bucket_name = self.get_bucket_name(image.created_at)
