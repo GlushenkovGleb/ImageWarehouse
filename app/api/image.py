@@ -18,7 +18,7 @@ async def load_images(
 
 
 @router.get(
-    '/{frame_id}/', status_code=status.HTTP_200_OK, response_model=List[ImageGet]
+    '/{frame_id}', status_code=status.HTTP_200_OK, response_model=List[ImageGet]
 )
 async def get_images(
     frame_id: int, handler: ImagesHandler = Depends()
@@ -27,7 +27,7 @@ async def get_images(
     return images
 
 
-@router.delete('/{frame_id}/', status_code=status.HTTP_204_NO_CONTENT)
+@router.delete('/{frame_id}', status_code=status.HTTP_204_NO_CONTENT)
 async def delete_images(frame_id: int, handler: ImagesHandler = Depends()) -> Response:
     handler.delete_images(frame_id)
     return Response(status_code=status.HTTP_204_NO_CONTENT)

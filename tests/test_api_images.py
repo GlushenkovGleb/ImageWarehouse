@@ -72,7 +72,7 @@ def test_get_images(client_test):
     app.dependency_overrides[get_minio] = my_minio
 
     # testing
-    response = client_test.get('/frames/1/')
+    response = client_test.get('/frames/1')
     assert response.status_code == 200
     assert list(map(ImageGet.parse_obj, response.json()))
     mock_minio.get_object.assert_called_once()
@@ -89,7 +89,7 @@ def test_delete_images(client_test, session):
     app.dependency_overrides[get_minio] = my_minio
 
     # testing
-    response = client_test.delete('/frames/1/')
+    response = client_test.delete('/frames/1')
     assert response.status_code == 204
     mock_minio.remove_object.assert_called_once()
 

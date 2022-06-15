@@ -16,6 +16,7 @@ from app.tables import Inbox
 
 class ImagesHandler:
     """Class that handles images using minio and sql"""
+
     @staticmethod
     def gen_image_name() -> str:
         return f'{uuid.uuid4()}.jpg'

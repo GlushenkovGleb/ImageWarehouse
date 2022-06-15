@@ -16,6 +16,7 @@ from app.tables import User
 
 class AuthService:
     """Class that handles authorization using jwt tokens and OAth2"""
+
     pwd_contex = CryptContext(schemes=['bcrypt'], deprecated='auto')
     oath2_scheme = OAuth2PasswordBearer(tokenUrl='/auth/sign-in/')
 
