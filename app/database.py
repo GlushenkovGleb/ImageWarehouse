@@ -33,7 +33,7 @@ def get_session() -> so.Session:  # pragma: no cover
         new_session.close()
 
 
-def get_minio() -> Minio:
+def get_minio() -> Minio:  # pragma: no cover
     client = Minio(
         endpoint=settings.minio_url,
         access_key=settings.minio_access_key,
@@ -43,7 +43,7 @@ def get_minio() -> Minio:
     yield client
 
 
-def init_db() -> None:
+def init_db() -> None:  # pragma: no cover
     data_path = Path(settings.data_path)
     if not data_path.exists():
         try:

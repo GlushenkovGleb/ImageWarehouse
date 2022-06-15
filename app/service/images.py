@@ -7,6 +7,7 @@ from typing import Any, List, Tuple
 from fastapi import Depends
 from minio import Minio
 from sqlalchemy.orm import Session
+from urllib3 import HTTPResponse
 
 from app import models
 from app.database import get_minio, get_session
@@ -24,13 +25,12 @@ class ImagesHandler:
 
     @staticmethod
     def get_file_content(data: bytes) -> Tuple[Any, int]:
-        print(data)
         raw_data = BytesIO(data)
         size = raw_data.getbuffer().nbytes
         return raw_data, size
 
     @staticmethod
-    def encode_image(file: Any) -> bytes:
+    def encode_image(file: HTTPResponse) -> bytes:
         return base64.b64encode(file.read())
 
     def __init__(

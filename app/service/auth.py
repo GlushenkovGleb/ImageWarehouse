@@ -4,6 +4,7 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
 from passlib.context import CryptContext
+from pydantic import ValidationError
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
@@ -34,12 +35,18 @@ class AuthService:
         )
 
         try:
-            jwt.decode(
+            payload = jwt.decode(
                 token,
                 settings.jwt_secret_key,
                 algorithms=[settings.jwt_algorithm],
             )
         except JWTError:
+            raise credentials_exception from None
+
+        user_data = payload.get('user')
+        try:
+            models.User.parse_obj(user_data)
+        except ValidationError:
             raise credentials_exception from None
 
     @classmethod
