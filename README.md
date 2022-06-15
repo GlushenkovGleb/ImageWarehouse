@@ -7,9 +7,9 @@
 ### Authorization
 Авторизация реализована при помощи OAth2 и JWT токенов. Каждый endpoint CRUDа требует валидный токен.
 
-- POST /sign-up/ - Получает на входе login и password. Добавляет пользователя в ДБ. Метод возвращает JSON в виде
+- POST /auth/sign-up/ - Получает на входе login и password. Добавляет пользователя в ДБ. Метод возвращает JSON в виде
 словаря с полями: access_token(JWT token), access_type.
-- POST /sign-in/ - Получает на входе username и password. Если login и password верны, то метод возвращает JSON в виде
+- POST /auth/sign-in/ - Получает на входе username и password. Если login и password верны, то метод возвращает JSON в виде
 словаря с полями: access_token(JWT token), access_type, иначе выбрасывает ошибку Unauthorized.
 
 ### CRUD
